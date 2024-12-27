@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import { GetAllTodos } from './lb/todo';
+import { supabase } from './utils/supabase';
+// import { Todo } from './domain/todo';
 
-import './App.css'
-import { getAllTodos } from '../utils/supabaseFunctions';
+// import './App.css';
 
-export const Todo = () => {
+export const TodoComponent = () => {
   const [records, setRecords] = useState([]);
 
   const [title, setTitle] = useState("");
@@ -11,33 +13,75 @@ export const Todo = () => {
 
   const [error, setError] = useState("");
 
-  const onClickAdd = () => {
+  const [todos, setTodos] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const onClickAdd = async () => {
     if (title === "" || time === "") {
       setError("入力されていない項目があります");
       return;
     }
 
     const newRecords = { title: title, time: Number(time) };
-    setRecords([...records, newRecords]);
-    setTitle("");
-    setTime("");
-    setError("");
+
+    const { error } = await supabase
+      .from("study-record")
+      .insert([newRecords]);
+
+      if (error) {
+        console.error("Error inserting data:", error);
+        setError("データの追加に失敗しました");
+        return;
+      }
+
+      // console.log("Inserted data:", data);
+
+      const todosData = await GetAllTodos();
+      setTodos(todosData);
+
+      setRecords([...records, newRecords]);
+      setTitle("");
+      setTime(0);
+      setError("");
+  };
+
+  const onClickDelete = async (id) => {
+    const { error } = await supabase
+    .from("study-record")
+    .delete()
+    .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting data:", error);
+      setError("データの削除に失敗しました");
+      return;
+    }
+
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
   const getTotalTimes = () => {
-    return records.reduce((total, record) => total + record.time,0);
+    // const recordsTotal = records.reduce((total, record) => total + record.time, 0);
+    const todosTotal = todos.reduce((total, todo) => total + todo.time, 0);
+    return todosTotal;
+    // return records.reduce((total, record) => total + record.time,0);
   };
 
-  const [ todos, setTodos ] = useState<any>([]);
-
   useEffect(() => {
-    const getTodos = async () =>{
-      const todos = await getAllTodos();
-      setTodos(todos);
-      console.log(todos);
-    };
-    getTodos();
+    const getAllTodos = async () => {
+      const todosData = await GetAllTodos();
+      // console.log(todosData);
+      setTodos(todosData);
+      setLoading(false);
+  };
+
+    getAllTodos();
   }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
@@ -58,20 +102,33 @@ export const Todo = () => {
           type="number"
         />時間
       </label>
+
       <div>
         {<p>入力されている学習内容：{title}</p>}
         {<p>入力されている時間：{time}時間</p>}
       </div>
+
+      {/* <div>
+        <ul>
+          {records.map((record, index) => (
+            <li key={index}>
+              {record.title}
+              {record.time}時間
+            </li>
+          ))}
+        </ul>
+      </div> */}
+
       <div>
         <ul>
-          {records.map((record) => {
-            return (
-              <li key={record.title}>
-                {record.title}
-                {record.time}時間
-              </li>
-            );
-          })}
+          {todos.map((todo) => (
+            <li key={todo.id}>
+              {todo.title}
+              {todo.time}
+              {todo.createdAt}
+              <button onClick={() => onClickDelete(todo.id)}>削除</button>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -82,4 +139,4 @@ export const Todo = () => {
   );
 };
 
-export default Todo
+export default TodoComponent;
