@@ -44,6 +44,8 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           ./node_modules/.bin/firebase deploy
       - name: delete GOOGLE_APPLICATION_CREDENTIALS
