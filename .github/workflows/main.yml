@@ -43,6 +43,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
         run: |
           ./node_modules/.bin/firebase deploy
       - name: delete GOOGLE_APPLICATION_CREDENTIALS
