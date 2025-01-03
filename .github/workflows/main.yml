@@ -1,10 +1,39 @@
-name: Scheduled deploy
+name: CI/CD Pipeline
 
 on:
   push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
+  # テストジョブの追加
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      # リポジトリのチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Node.jsのセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+          cache: "npm"  # 依存関係のキャッシュを有効化
+
+      # 依存関係のインストール
+      - name: Install dependencies
+        run: npm install
+
+      # テストの実行
+      - name: Run tests
+        run: npm test
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          CI: true  # CIモードでテストを実行
+
   build:
     name: build
     runs-on: ubuntu-latest

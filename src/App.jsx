@@ -7,14 +7,10 @@ import { supabase } from './utils/supabase';
 
 export const TodoComponent = () => {
   const [records, setRecords] = useState([]);
-
   const [title, setTitle] = useState("");
   const [time, setTime] = useState(0);
-
   const [error, setError] = useState("");
-
   const [todos, setTodos] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   const onClickAdd = async () => {
@@ -29,13 +25,11 @@ export const TodoComponent = () => {
       .from("study-record")
       .insert([newRecords]);
 
-      if (error) {
-        console.error("Error inserting data:", error);
-        setError("データの追加に失敗しました");
-        return;
-      }
-
-      // console.log("Inserted data:", data);
+    if (error) {
+      console.error("Error inserting data:", error);
+      setError("データの追加に失敗しました");
+      return;
+    }
 
       const todosData = await GetAllTodos();
       setTodos(todosData);
@@ -62,16 +56,13 @@ export const TodoComponent = () => {
   };
 
   const getTotalTimes = () => {
-    // const recordsTotal = records.reduce((total, record) => total + record.time, 0);
     const todosTotal = todos.reduce((total, todo) => total + todo.time, 0);
     return todosTotal;
-    // return records.reduce((total, record) => total + record.time,0);
   };
 
   useEffect(() => {
     const getAllTodos = async () => {
       const todosData = await GetAllTodos();
-      // console.log(todosData);
       setTodos(todosData);
       setLoading(false);
   };
@@ -85,6 +76,7 @@ export const TodoComponent = () => {
 
   return (
     <>
+      <title data-testid="title">Hello Jest</title>
       <h1>学習記録一覧</h1>
       <label>
         学習内容
@@ -108,23 +100,12 @@ export const TodoComponent = () => {
         {<p>入力されている時間：{time}時間</p>}
       </div>
 
-      {/* <div>
-        <ul>
-          {records.map((record, index) => (
-            <li key={index}>
-              {record.title}
-              {record.time}時間
-            </li>
-          ))}
-        </ul>
-      </div> */}
-
       <div>
         <ul>
           {todos.map((todo) => (
             <li key={todo.id}>
               {todo.title}
-              {todo.time}
+              {todo.time}時間
               {todo.createdAt}
               <button onClick={() => onClickDelete(todo.id)}>削除</button>
             </li>
@@ -137,6 +118,6 @@ export const TodoComponent = () => {
       <p>合計時間 : {getTotalTimes()} / 1000（h）</p>
     </>
   );
-};
+}
 
 export default TodoComponent;
