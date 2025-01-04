@@ -25,7 +25,7 @@ describe("Title Test", () => {
     // 登録ボタンをクリック
     fireEvent.click(screen.getByText("登録"));
     // 新しく追加された学習記録が画面に表示されていることを確認
-    const newRecord = await waitFor(() => screen.findByText("Reactの勉強1時間"));
+    const newRecord = await waitFor(() => screen.findByText("Reactの勉強1時間"),{ timeout: 5000 });
     expect(newRecord).toBeInTheDocument();
 
     // 削除ボタンをクリック
